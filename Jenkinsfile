@@ -29,65 +29,19 @@ void cleanDockerContainer() {
         sh 'docker container ls -a'
     }
 }
-  ansiColor('xterm') {
-    node('worker') {
-        def pipeline;
-        def testRunner;
-        def image;
-        def imageName;
-        def currentStage = '';
-        def testImageName;
-
-        try {
-            currentStage = 'Prepare Pipeline';
-            stage(currentStage) {
-                entering(currentStage);
-
-                pipeline = new cicd.Pipeline();
-                testRunner = pipeline.getTestRunnerInstance(['language': 'node']);
-                pipeline.cleanupAndCheckout();
-            }
-
-            currentStage = 'Build Docker Image';
-            stage(currentStage) {
-                entering(currentStage);
-                def version = VERSION_MAJOR + '.' + VERSION_MINOR + '.' + VERSION_PATCH
-                def imageNameBase = pipeline.projectInfo().repoName;
-                imageECS = pipeline.buildDockerImage([
-                        appName   : imageNameBase + "_ecs",
-                        appVersion: version
-                ])
-            }
-            String lastCommitAuthor = getLastCommitAuthor();
-            currentStage = 'npm run integration';
-            stage(currentStage) {
-                entering(currentStage);
-                cleanDockerContainer();
-                try {
-                    sh "docker-compose -f docker-compose.yml  up --build"
-                }
-                finally {
-                    cleanDockerContainer();
-                }
+pipeline{
+    agent any
+    stages{
+        stage("Cleanup"){
+            steps{
+                cleanDockerContainer()
             }
         }
-        catch ( Throwable error) {
-            println( error );
-            String lastCommitAuthor = getLastCommitAuthor();
-            if ( lastCommitAuthor == 'sali' ) {
-//            || lastCommitAuthor == 'blah') {  add your name in to be notified
-                slackSend(
-                        channel:  '@' + lastCommitAuthor,
-                        color: RED_COLOR,
-                        message: "Build FAILED - ${env.BUILD_URL}"
-                );
-            } else {
-                println('lastCommitAuthor=' +lastCommitAuthor);
+        stage("Docker-compose"){
+            steps{
+                sh "docker-compose up --build"
             }
-            println( 'In Catch: Current build status is: ' + currentBuild.currentResult);
-
-            // rethrow the error otherwise the build status is not correct
-            throw error;
         }
+
     }
 }
