@@ -30,20 +30,6 @@ void cleanDockerContainer() {
     }
 }
   ansiColor('xterm') {
-    properties([
-        parameters([
-           string(defaultValue: 'postgres',name: 'postgreshost', trim: true)
-           string(defaultValue: 'postgres',name: 'postgrespassword', trim: true)
-           string(defaultValue: 'postgres',name: 'postgresdb', trim: true)
-           string(defaultValue: '',name: 'AWS_ACCESS_KEY', trim: true)
-           string(defaultValue: '',name: 'AWS_SECRET_KEY', trim: true)
-        ])
-    ]);
-    environment {
-        PG_HOST = params.postgreshost
-        PG_PASSWORD= params.postgrespassword
-        PG_DB= params.postgresdb
-    }
     node('worker') {
         def pipeline;
         def testRunner;
