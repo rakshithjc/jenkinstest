@@ -32,7 +32,7 @@ void cleanDockerContainer() {
 pipeline{
     agent any
     stages{
-          stage('Docker-compose set') {
+        stage('Docker-compose set') {
             withEnv(["PATH=$PATH:~/.local/bin"]){
                     sh "bash test.sh"
                 }
