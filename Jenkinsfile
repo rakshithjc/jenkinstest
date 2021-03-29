@@ -31,12 +31,10 @@ void cleanDockerContainer() {
 }
 pipeline{
     agent any
+    environment {
+        PATH = "$PATH:/usr/local/bin"
+    }
     stages{
-        stage("DC"){
-            steps{
-                sh 'sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose'
-            }
-        }
         stage("Cleanup"){
             steps{
                 cleanDockerContainer()
