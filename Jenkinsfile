@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 String getLastCommitAuthor() {
     String lastCommitAuthor =
         sh(script: "git log -1 --pretty=format:'%ae' | awk -F '@' '{print \$1};'", returnStdout: true).trim();
@@ -28,8 +29,6 @@ void cleanDockerContainer() {
         sh 'docker container ls -a'
     }
 }
-
-#!/usr/bin/env groovy
   ansiColor('xterm') {
     properties([
         parameters([
